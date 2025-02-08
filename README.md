@@ -16,11 +16,9 @@ https://web.whatsapp.com/
 5. Требуется реализовать интерфейс максимально простым с минимальным набором
 функций
 
-6. Требуется отправку сообщений реализовать методом https://green-
-api.com/docs/api/sending/SendMessage/
+6. Требуется отправку сообщений реализовать методом https://green-api.com/docs/api/sending/SendMessage/
 
-7. Требуется получение сообщений реализовать методом https://green-
-api.com/docs/api/receiving/technology-http-api/
+7. Требуется получение сообщений реализовать методом https://green-api.com/docs/api/receiving/technology-http-api/
 
 8. Требуется использовать технологию React
 Ожидаемый результат:
