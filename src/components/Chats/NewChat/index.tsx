@@ -5,7 +5,15 @@ import React, {
   useMemo,
   useCallback,
 } from 'react';
-import { Box, Paper, Typography, Button, List, Divider } from '@mui/material';
+import {
+  Box,
+  Paper,
+  Typography,
+  Button,
+  List,
+  Divider,
+  CircularProgress,
+} from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { MessageType, ReceiveNotificationIncomingBody } from '../types';
 import { useAppSelector } from '../../../api/hooks';
@@ -36,6 +44,7 @@ export const NewChat = React.memo(() => {
   const classes = styles(theme);
   const dispatch = useDispatch();
   const [messages, setMessages] = useState<MessageType[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [isNewOtherSenderMessages, setIsNewOtherSenderMessages] =
     useState(false);
 
@@ -51,6 +60,7 @@ export const NewChat = React.memo(() => {
   const debouncedFetchMessages = useMemo(
     () =>
       debounce(async () => {
+        setIsLoading(true);
         if (chatId && idInst && token) {
           const response = await fetch(
             getUrl(idInst, token, 'getChatHistory'),
@@ -63,6 +73,7 @@ export const NewChat = React.memo(() => {
 
           setMessages(() => data.reverse());
         }
+        setIsLoading(false);
       }, 500),
     [chatId, idInst, token]
   );
@@ -152,11 +163,15 @@ export const NewChat = React.memo(() => {
               </Button>
             </Box>
             <Divider />
-            <List sx={classes.messageList} ref={messagesRef}>
-              {messages.map((message) => (
-                <Message key={message.idMessage} message={message} />
-              ))}
-            </List>
+            {isLoading ? (
+              <CircularProgress />
+            ) : (
+              <List sx={classes.messageList} ref={messagesRef}>
+                {messages.map((message) => (
+                  <Message key={message.idMessage} message={message} />
+                ))}
+              </List>
+            )}
             {isNewOtherSenderMessages && countOfOtherSenderMessages > 0 && (
               <ScrollDownButton
                 scrollRef={messagesRef}
