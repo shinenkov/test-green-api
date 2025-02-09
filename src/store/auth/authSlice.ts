@@ -1,18 +1,22 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { RootState } from '../appStore';
+import { SettingsResponse } from './types';
+import { getUrl } from '../../api/baseApi';
 
-interface AuthState {
+type AuthState = {
   isAuthenticated: boolean;
-  idInstance: string | null;
+  idInstance: number | null;
   apiTokenInstance: string | null;
+  wid: string | null;
   loading: boolean;
   error: string | null;
-}
+};
 
 const initialState: AuthState = {
   isAuthenticated: false,
   idInstance: null,
   apiTokenInstance: null,
+  wid: null,
   loading: false,
   error: null,
 };
@@ -23,13 +27,15 @@ export const login = createAsyncThunk(
     {
       idInstance,
       apiTokenInstance,
-    }: { idInstance: string; apiTokenInstance: string },
+    }: { idInstance: number; apiTokenInstance: string },
     { rejectWithValue }
   ) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      return { idInstance, apiTokenInstance };
+      const response = await fetch(
+        getUrl(idInstance, apiTokenInstance, 'getSettings')
+      );
+      const data: SettingsResponse = await response.json();
+      return { idInstance, apiTokenInstance, wid: data.wid };
     } catch (error) {
       console.error(error);
       return rejectWithValue('Login failed. Please check your credentials.');
@@ -45,6 +51,9 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       state.idInstance = null;
       state.apiTokenInstance = null;
+      state.wid = null;
+      sessionStorage.removeItem('idInstance');
+      sessionStorage.removeItem('apiTokenInstance');
     },
   },
   extraReducers: (builder) => {
@@ -57,7 +66,16 @@ const authSlice = createSlice({
         state.isAuthenticated = true;
         state.idInstance = action.payload.idInstance;
         state.apiTokenInstance = action.payload.apiTokenInstance;
+        state.wid = action.payload.wid;
         state.loading = false;
+        sessionStorage.setItem(
+          'idInstance',
+          action.payload.idInstance.toString()
+        );
+        sessionStorage.setItem(
+          'apiTokenInstance',
+          action.payload.apiTokenInstance
+        );
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;

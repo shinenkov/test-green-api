@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -11,52 +11,14 @@ import { Button } from '@mui/material';
 import { DrawerHeader, drawerWidth } from './DrawerControl/utils';
 import { AppBar, Drawer } from './DrawerControl';
 import { useAppDispatch, useAppSelector } from '../../api/hooks';
-import {
-  setChats as setChatsStore,
-  selectChats,
-} from '../../store/chat/chatSlice';
+import { selectChats } from '../../store/chat/chatSlice';
+import { logout } from '../../store/auth/authSlice';
 
-type ChatContainerProps = {
-  onLogout: () => void;
-};
-export const ChatContainer: React.FC<ChatContainerProps> = ({ onLogout }) => {
+export const ChatContainer: React.FC = () => {
   const dispatch = useAppDispatch();
   const theme = useTheme();
   const chatList = useAppSelector(selectChats);
   const [isDrawerOpen, setIsDrawerOpen] = useState(true);
-
-  useEffect(() => {
-    /*
-    const fetchChats = async () => {
-      const response = await fetch('https://api.example.com/chats');
-      const data = await response.json();
-      setChats(data.chats);
-    };
-    fetchChats();
-    */
-    const mockChats = [
-      {
-        id: '1',
-        name: 'Joe Doe',
-        avatar: 'string',
-        lastMessage: 'test message',
-      },
-      {
-        id: '2',
-        name: 'Margaret Smith',
-        avatar: 'string',
-        lastMessage: 'another test message',
-      },
-      {
-        id: '3',
-        name: 'Bob Johnson',
-        avatar: 'string',
-        lastMessage: 'last test message',
-      },
-    ];
-    dispatch(setChatsStore(mockChats));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const handleDrawerToggle = () => {
     setIsDrawerOpen(!isDrawerOpen);
@@ -68,6 +30,10 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({ onLogout }) => {
         {isDrawerOpen ? 'Hide' : 'Show'}
       </Button>
     );
+  };
+
+  const onLogout = () => {
+    dispatch(logout());
   };
 
   return (

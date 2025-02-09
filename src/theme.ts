@@ -1,11 +1,12 @@
 import { createTheme } from '@mui/material/styles';
 
-const colors = {
+export const colors = {
   primaryBackground: '#008069',
   darkPrimaryBackground: '#017561',
   background: 'rgb(252, 245, 235)',
   white: '#ffffff',
   text: '#333333',
+  danger: '#a72727',
 };
 
 const commonShift = '24px';

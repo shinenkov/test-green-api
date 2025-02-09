@@ -6,3 +6,9 @@ export const baseApi = createApi({
   baseQuery: baseQuery,
   endpoints: () => ({}),
 });
+
+export const getUrl = (
+  idInstance: number,
+  apiTokenInstance: string,
+  method: string
+) => `green/waInstance${idInstance}/${method}/${apiTokenInstance}`;

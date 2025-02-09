@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Typography, useTheme } from '@mui/material';
-import LockIcon from '../icons/lock';
+import LockIcon from './icons/Lock';
 import { styles } from '../styles';
 
 export const Footer: React.FC = () => {

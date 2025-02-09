@@ -11,6 +11,10 @@ export type MaskPhoneProps = InputBaseComponentProps & {
   onChange: (event: { target: { name: string; value: string } }) => void;
 };
 
+export const brazilCodes = [
+  11, 12, 13, 14, 15, 16, 17, 18, 19, 21, 22, 24, 27, 28,
+];
+
 // From https://bitbucket.org/atlassian/atlaskit-mk-2/raw/4ad0e56649c3e6c973e226b7efaeb28cb240ccb0/packages/core/select/src/data/countries.js
 export const countries: readonly CountryType[] = [
   { code: 'AD', label: 'Andorra', phone: '376' },

@@ -33,7 +33,7 @@ export const CountriesInput = React.memo((props: CountriesInputProps) => {
   return (
     <Box>
       <Autocomplete
-        sx={{ width: 320 }}
+        sx={{ width: 420 }}
         options={countries}
         autoHighlight
         getOptionLabel={(option) => option.label}

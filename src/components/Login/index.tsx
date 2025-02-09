@@ -1,74 +1,35 @@
 import { Box, Paper, Typography } from '@mui/material';
 import React, { useCallback, useState } from 'react';
-import { countries, CountryType } from './types';
 import { login, selectAuth } from '../../store/auth/authSlice';
 import { useAppDispatch, useAppSelector } from '../../api/hooks';
-import { PhoneInput } from './PhoneInput';
 import { CredentialsInput } from './CredentialsInput';
 import { LoginButton } from './LoginButton';
 import { Footer } from './Footer';
 import { styles } from './styles';
 import { useTheme } from '@mui/material/styles';
-import { CountriesInput } from './Countries';
 
-interface LoginProps {
-  onLogin: () => void;
-}
-
-export const Login = React.memo(({ onLogin }: LoginProps) => {
+export const Login = React.memo(() => {
   const dispatch = useAppDispatch();
   const { loading, error } = useAppSelector(selectAuth);
   const theme = useTheme();
   const classes = styles(theme);
 
-  const [country, setCountry] = useState<CountryType>(countries[189]);
-  const [countryInput, setCountryInput] = useState('');
-  const [phone, setPhone] = useState('7');
-  const [idInstance, setIdInstance] = useState('');
+  const [idInstance, setIdInstance] = useState(0);
   const [apiTokenInstance, setApiTokenInstance] = useState('');
 
   const handleLogin = useCallback(() => {
     dispatch(login({ idInstance, apiTokenInstance }));
-    onLogin();
-  }, [dispatch, idInstance, apiTokenInstance, onLogin]);
-
-  const handleSetCountry = useCallback(
-    (newValue: CountryType) => {
-      setCountry(newValue);
-      setPhone(newValue.phone);
-    },
-    [setCountry]
-  );
-
-  const handleSetPhone = useCallback(
-    (newValue: string) => {
-      setPhone(newValue);
-    },
-    [setPhone]
-  );
+  }, [dispatch, idInstance, apiTokenInstance]);
 
   return (
     <Box sx={classes.mainContainer}>
       <Paper sx={classes.paper}>
         <Box sx={classes.paperContent}>
           <Box sx={{ textAlign: 'center' }}>
-            <Typography variant="h4">Введите номер телефона</Typography>
+            <Typography variant="h4">Введите инстанс</Typography>
             <Typography variant="h6">
-              Выберите страну и введите свой номер телефона.
+              Введите idInstance и apiTokenInstance.
             </Typography>
-          </Box>
-          <Box sx={classes.inputContainer}>
-            <CountriesInput
-              country={country}
-              setCountry={handleSetCountry}
-              countryInput={countryInput}
-              setCountryInput={setCountryInput}
-            />
-            <PhoneInput
-              name={country.phone}
-              phone={phone}
-              setPhone={handleSetPhone}
-            />
           </Box>
           <CredentialsInput
             idInstance={idInstance}
@@ -81,7 +42,14 @@ export const Login = React.memo(({ onLogin }: LoginProps) => {
               {error}
             </Typography>
           )}
-          <LoginButton onClick={handleLogin} loading={loading} />
+          <LoginButton
+            disabled={
+              idInstance.toString().length !== 10 ||
+              apiTokenInstance.length !== 50
+            }
+            onClick={handleLogin}
+            loading={loading}
+          />
         </Box>
       </Paper>
       <Footer />

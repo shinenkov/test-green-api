@@ -1,52 +1,109 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import {
-  Box,
-  Paper,
-  Typography,
-  Button,
-  List,
-  Divider,
-} from '@mui/material';
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useMemo,
+  useCallback,
+} from 'react';
+import { Box, Paper, Typography, Button, List, Divider } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import { MessageType } from '../types';
+import { MessageType, ReceiveNotificationIncomingBody } from '../types';
 import { useAppSelector } from '../../../api/hooks';
 import {
-  ChatState,
   selectedChatId,
   selectChat,
+  selectChats,
+  setChats,
 } from '../../../store/chat/chatSlice';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { debounce } from 'lodash';
 import { styles } from '../styles';
 import { Message } from './Message';
 import { Sender } from './Sender';
-import { CreateChat } from './CreateChat';
+import { CreateChat } from '../CreateChat';
+import { getUrl } from '../../../api/baseApi';
+import { selectAuth } from '../../../store/auth/authSlice';
+import {
+  deleteNotification,
+  deleteNotify,
+  selectNotifications,
+} from '../../../store/notification/notificationSlice';
+import { getReceivedMessage } from './utils';
+import { ScrollDownButton } from './ScrollDownButton';
 
 export const NewChat = React.memo(() => {
   const theme = useTheme();
   const classes = styles(theme);
   const dispatch = useDispatch();
   const [messages, setMessages] = useState<MessageType[]>([]);
+  const [isNewOtherSenderMessages, setIsNewOtherSenderMessages] =
+    useState(false);
+
   const messagesRef = useRef<HTMLUListElement>(null);
 
   const chatId = useAppSelector(selectedChatId);
-  const { chats } = useSelector((state: { chat: ChatState }) => state.chat);
+  const { idInstance: idInst, apiTokenInstance: token } =
+    useAppSelector(selectAuth);
+
+  const chatList = useAppSelector(selectChats);
+  const notifications = useAppSelector(selectNotifications);
 
   const debouncedFetchMessages = useMemo(
     () =>
       debounce(async () => {
-        if (chatId) {
-          const response = await fetch(`/mock/chats/${chatId}/messages`);
-          const data = await response.json();
-          setMessages((prevMessages) => [...prevMessages, ...data]);
+        if (chatId && idInst && token) {
+          const response = await fetch(
+            getUrl(idInst, token, 'getChatHistory'),
+            {
+              method: 'POST',
+              body: JSON.stringify({ chatId, count: 20 }),
+            }
+          );
+          const data: MessageType[] = await response.json();
+
+          setMessages(() => data.reverse());
         }
       }, 500),
-    [chatId]
+    [chatId, idInst, token]
   );
 
   useEffect(() => {
     debouncedFetchMessages();
   }, [debouncedFetchMessages]);
+
+  useEffect(() => {
+    if (chatList.some((chat) => chat.unreaded) && notifications && chatId) {
+      const notify = notifications?.find(
+        (n) => 'senderData' in n.body && n.body.senderData.chatId === chatId
+      );
+      if (notify) {
+        const body = notify?.body as ReceiveNotificationIncomingBody;
+        if (messages.every((message) => message.idMessage !== body.idMessage)) {
+          setMessages((prevState) => [
+            ...prevState,
+            getReceivedMessage(
+              chatId,
+              body.messageData.textMessageData.textMessage,
+              body.idMessage,
+              body.timestamp
+            ),
+          ]);
+        }
+        if (!isNewOtherSenderMessages) {
+          dispatch(deleteNotify(notify.receiptId));
+          deleteNotification(notify.receiptId);
+          const newChats = chatList.map((chat) => {
+            if (chat.phone === body.senderData.chatId) {
+              const newChat = { ...chat, lastMessage: '', unreaded: false };
+              return newChat;
+            }
+            return chat;
+          });
+          dispatch(setChats(newChats));
+        }
+      }
+    }
+  }, [chatList, chatId, notifications, isNewOtherSenderMessages]);
 
   const handleCloseChat = () => {
     dispatch(selectChat(null));
@@ -54,9 +111,32 @@ export const NewChat = React.memo(() => {
 
   const handleSetMessages = useCallback(
     (value: MessageType[]) => {
-      setMessages(value)
-    }, [setMessages],
+      setMessages(value);
+    },
+    [setMessages]
   );
+
+  useEffect(() => {
+    if (messagesRef.current) {
+      if (messages[messages.length - 1]?.type === 'outgoing') {
+        messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
+      } else {
+        if (
+          messagesRef.current.scrollHeight > messagesRef.current.clientHeight
+        ) {
+          setIsNewOtherSenderMessages(true);
+        }
+      }
+    }
+  }, [messages, messagesRef]);
+
+  const hangleCloseScrollDown = useCallback(() => {
+    setIsNewOtherSenderMessages(false);
+  }, [setIsNewOtherSenderMessages]);
+
+  const countOfOtherSenderMessages = [...messages]
+    .reverse()
+    .findIndex((mes) => mes.type === 'outgoing');
 
   return (
     <Box sx={classes.container}>
@@ -65,7 +145,7 @@ export const NewChat = React.memo(() => {
           <>
             <Box sx={classes.chatHeader}>
               <Typography variant="h6" sx={{ mb: 2 }}>
-                {chatId ? chats.find((ch) => ch.id === chatId)?.name : 'Chat'}
+                {`+${chatId.replace('@c.us', '')}`}
               </Typography>
               <Button variant="contained" onClick={handleCloseChat}>
                 Close
@@ -74,9 +154,16 @@ export const NewChat = React.memo(() => {
             <Divider />
             <List sx={classes.messageList} ref={messagesRef}>
               {messages.map((message) => (
-                <Message key={message.id} message={message}/>
+                <Message key={message.idMessage} message={message} />
               ))}
             </List>
+            {isNewOtherSenderMessages && countOfOtherSenderMessages > 0 && (
+              <ScrollDownButton
+                scrollRef={messagesRef}
+                handleClose={hangleCloseScrollDown}
+                count={countOfOtherSenderMessages}
+              />
+            )}
             <Sender
               messagesRef={messagesRef}
               messages={messages}

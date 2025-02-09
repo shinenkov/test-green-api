@@ -1,4 +1,5 @@
 import { Theme } from '@mui/material/styles';
+import { commonStyles } from '../Login/styles';
 
 export const styles = (theme: Theme) => ({
   container: {
@@ -8,6 +9,12 @@ export const styles = (theme: Theme) => ({
     alignItems: 'center',
     justifyContent: 'center',
     bgcolor: theme.palette.background.default,
+  },
+  inputContainer: {
+    ...commonStyles.centerFlexColumn,
+    justifyContent: 'space-between',
+    minHeight: '128px',
+    minWidth: '420px',
   },
   paper: {
     height: '100%',

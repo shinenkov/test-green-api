@@ -1,10 +1,16 @@
 import React from 'react';
-import { Box, FormControl, OutlinedInput, useTheme } from '@mui/material';
+import {
+  Box,
+  FormControl,
+  InputLabel,
+  OutlinedInput,
+  useTheme,
+} from '@mui/material';
 import { styles } from '../styles';
 
 type CredentialsInputProps = {
-  idInstance: string;
-  setIdInstance: (value: string) => void;
+  idInstance: number;
+  setIdInstance: (value: number) => void;
   apiTokenInstance: string;
   setApiTokenInstance: (value: string) => void;
 };
@@ -20,14 +26,24 @@ export const CredentialsInput: React.FC<CredentialsInputProps> = ({
   return (
     <Box sx={classes.inputContainer}>
       <FormControl fullWidth variant="outlined" sx={classes.formControl}>
+        <InputLabel htmlFor="idInstance">idInstance</InputLabel>
         <OutlinedInput
+          label="idInstance"
+          id={'idInstance'}
           value={idInstance}
           placeholder="idInstance"
-          onChange={(e) => setIdInstance(e.target.value)}
+          onChange={(e) => {
+            const { value } = e.target;
+            if (value.length < 15)
+              setIdInstance(Number(e.target.value.replace(/\D/, '')));
+          }}
         />
       </FormControl>
       <FormControl fullWidth variant="outlined" sx={classes.formControl}>
+        <InputLabel htmlFor="apiTokenInstance">apiTokenInstance</InputLabel>
         <OutlinedInput
+          label="apiTokenInstance"
+          id={'apiTokenInstance'}
           value={apiTokenInstance}
           placeholder="apiTokenInstance"
           onChange={(e) => setApiTokenInstance(e.target.value)}
