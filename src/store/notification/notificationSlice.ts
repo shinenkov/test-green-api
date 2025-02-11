@@ -40,7 +40,7 @@ export const deleteNotification = async (receiptId: number) => {
   const apiTokenInstance = sessionStorage.getItem('apiTokenInstance');
   if (idInstance && apiTokenInstance) {
     const response = await fetch(
-      `green/waInstance${idInstance}/deleteNotification/${apiTokenInstance}/${receiptId}`,
+      `${process.env.GREEN_API}/waInstance${idInstance}/deleteNotification/${apiTokenInstance}/${receiptId}`,
       {
         method: 'DELETE',
       }

@@ -11,4 +11,4 @@ export const getUrl = (
   idInstance: number,
   apiTokenInstance: string,
   method: string
-) => `green/waInstance${idInstance}/${method}/${apiTokenInstance}`;
+) => `${process.env.GREEN_API}/waInstance${idInstance}/${method}/${apiTokenInstance}`;
