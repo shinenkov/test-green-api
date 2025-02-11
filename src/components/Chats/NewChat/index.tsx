@@ -99,18 +99,19 @@ export const NewChat = React.memo(() => {
               body.timestamp
             ),
           ]);
-        }
-        if (!isNewOtherSenderMessages) {
-          dispatch(deleteNotify(notify.receiptId));
-          deleteNotification(notify.receiptId);
-          const newChats = chatList.map((chat) => {
-            if (chat.phone === body.senderData.chatId) {
-              const newChat = { ...chat, lastMessage: '', unreaded: false };
-              return newChat;
-            }
-            return chat;
-          });
-          dispatch(setChats(newChats));
+        } else {
+          if (!isNewOtherSenderMessages) {
+            dispatch(deleteNotify(notify.receiptId));
+            deleteNotification(notify.receiptId);
+            const newChats = chatList.map((chat) => {
+              if (chat.phone === body.senderData.chatId) {
+                const newChat = { ...chat, lastMessage: '', unreaded: false };
+                return newChat;
+              }
+              return chat;
+            });
+            dispatch(setChats(newChats));
+          }
         }
       }
     }
@@ -145,6 +146,13 @@ export const NewChat = React.memo(() => {
     setIsNewOtherSenderMessages(false);
   }, [setIsNewOtherSenderMessages]);
 
+  useEffect(() => {
+    if (!isLoading && messagesRef.current) {
+      hangleCloseScrollDown();
+      messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
+    }
+  }, [messagesRef, isLoading, hangleCloseScrollDown]);
+
   const countOfOtherSenderMessages = [...messages]
     .reverse()
     .findIndex((mes) => mes.type === 'outgoing');
@@ -165,7 +173,7 @@ export const NewChat = React.memo(() => {
             <Divider />
             {isLoading ? (
               <Box sx={classes.createChatBox}>
-                <CircularProgress size={120} sx={{height: '100%'}} />
+                <CircularProgress size={120} sx={{ height: '100%' }} />
               </Box>
             ) : (
               <>

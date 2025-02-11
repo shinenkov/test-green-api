@@ -95,11 +95,15 @@ export const ListChats: React.FC<ListChatsProps> = ({ chats }) => {
       });
       if (notify) {
         const newChats = updateChatLastMessage(chats, notify);
-        dispatch(setChats(newChats));
+        if (newChats) {
+          dispatch(setChats(newChats));
+        }
       } else {
         notifications?.forEach((notification) => {
           const newChat = createNewChat(chats, notification);
-          dispatch(addChat(newChat));
+          if (newChat) {
+            dispatch(addChat(newChat));
+          }
         });
       }
     }
@@ -111,10 +115,14 @@ export const ListChats: React.FC<ListChatsProps> = ({ chats }) => {
   ) => {
     const body = notify.body as ReceiveNotificationIncomingBody;
     return chats.map((chat) => {
-      if (chat.phone === body.senderData.chatId) {
+      if (
+        chat.phone === body.senderData.chatId &&
+        body.messageData &&
+        body.senderData
+      ) {
         const newChat = {
           ...chat,
-          lastMessage: body.messageData.textMessageData.textMessage,
+          lastMessage: body.messageData.textMessageData?.textMessage,
           name:
             body.senderData.chatName ||
             body.senderData.senderName ||
@@ -132,17 +140,19 @@ export const ListChats: React.FC<ListChatsProps> = ({ chats }) => {
     notification: ReceiveNotificationResponse
   ) => {
     const body = notification.body as ReceiveNotificationIncomingBody;
-    return {
-      id: (chats.length + 1).toString(),
-      name:
-        body.senderData.chatName ||
-        body.senderData.senderName ||
-        body.senderData.senderContactName,
-      phone: body.senderData.chatId,
-      avatar: '',
-      unreaded: true,
-      lastMessage: body.messageData.textMessageData.textMessage,
-    };
+    if ('senderData' in body && body.senderData && body.messageData) {
+      return {
+        id: (chats.length + 1).toString(),
+        name:
+          body.senderData.chatName ||
+          body.senderData.senderName ||
+          body.senderData.senderContactName,
+        phone: body.senderData.chatId,
+        avatar: '',
+        unreaded: true,
+        lastMessage: body.messageData.textMessageData.textMessage,
+      };
+    }
   };
 
   useEffect(() => {

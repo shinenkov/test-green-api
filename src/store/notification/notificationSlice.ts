@@ -11,6 +11,21 @@ const initialState: NotificationState = {
   notifications: [],
 };
 
+export const deleteNotification = async (receiptId: number) => {
+  const idInstance = sessionStorage.getItem('idInstance');
+  const apiTokenInstance = sessionStorage.getItem('apiTokenInstance');
+  if (idInstance && apiTokenInstance) {
+    const response = await fetch(
+      `${process.env.GREEN_API}waInstance${idInstance}/deleteNotification/${apiTokenInstance}/${receiptId}`,
+      {
+        method: 'DELETE',
+      }
+    );
+    const data: { result: boolean } = await response.json();
+    console.log('Deleted notification: ', receiptId, ': ', data);
+  }
+};
+
 export const getNotification = createAsyncThunk(
   'notification/get',
   async (
@@ -35,21 +50,6 @@ export const getNotification = createAsyncThunk(
   }
 );
 
-export const deleteNotification = async (receiptId: number) => {
-  const idInstance = sessionStorage.getItem('idInstance');
-  const apiTokenInstance = sessionStorage.getItem('apiTokenInstance');
-  if (idInstance && apiTokenInstance) {
-    const response = await fetch(
-      `${process.env.GREEN_API}waInstance${idInstance}/deleteNotification/${apiTokenInstance}/${receiptId}`,
-      {
-        method: 'DELETE',
-      }
-    );
-    const data: { result: boolean } = await response.json();
-    console.log('Deleted notification: ', receiptId, ': ', data);
-  }
-};
-
 const notificationSlice = createSlice({
   name: 'notification',
   initialState,
@@ -69,9 +69,8 @@ const notificationSlice = createSlice({
         ) === -1
       ) {
         if (
-          'status' in action.payload.body &&
-          (action.payload.body.status === 'sent' ||
-            action.payload.body.status === 'read')
+          'typeWebhook' in action.payload.body &&
+          action.payload.body.typeWebhook === '"outgoingAPIMessageReceived"'
         ) {
           deleteNotification(action.payload.receiptId);
         } else {
