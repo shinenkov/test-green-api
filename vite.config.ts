@@ -18,6 +18,15 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 3001,
       proxy: proxyConfigLocal
+    },
+    preview: {
+      watch: {
+        usePolling: true
+      },
+      host: true,
+      strictPort: true,
+      port: 8080,
+      proxy: proxyConfigLocal
     }
   }
 })
