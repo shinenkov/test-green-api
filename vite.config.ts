@@ -15,6 +15,9 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react()],
+    define: {
+      "process.env": env,
+    },
     server: {
       port: 3001,
       proxy: proxyConfigLocal

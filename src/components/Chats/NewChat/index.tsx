@@ -164,26 +164,30 @@ export const NewChat = React.memo(() => {
             </Box>
             <Divider />
             {isLoading ? (
-              <CircularProgress />
+              <Box sx={classes.createChatBox}>
+                <CircularProgress size={120} sx={{height: '100%'}} />
+              </Box>
             ) : (
-              <List sx={classes.messageList} ref={messagesRef}>
-                {messages.map((message) => (
-                  <Message key={message.idMessage} message={message} />
-                ))}
-              </List>
+              <>
+                <List sx={classes.messageList} ref={messagesRef}>
+                  {messages.map((message) => (
+                    <Message key={message.idMessage} message={message} />
+                  ))}
+                </List>
+                {isNewOtherSenderMessages && countOfOtherSenderMessages > 0 && (
+                  <ScrollDownButton
+                    scrollRef={messagesRef}
+                    handleClose={hangleCloseScrollDown}
+                    count={countOfOtherSenderMessages}
+                  />
+                )}
+                <Sender
+                  messagesRef={messagesRef}
+                  messages={messages}
+                  setMessages={handleSetMessages}
+                />
+              </>
             )}
-            {isNewOtherSenderMessages && countOfOtherSenderMessages > 0 && (
-              <ScrollDownButton
-                scrollRef={messagesRef}
-                handleClose={hangleCloseScrollDown}
-                count={countOfOtherSenderMessages}
-              />
-            )}
-            <Sender
-              messagesRef={messagesRef}
-              messages={messages}
-              setMessages={handleSetMessages}
-            />
           </>
         ) : (
           <CreateChat />
