@@ -85,18 +85,26 @@ export const NewChat = React.memo(() => {
   useEffect(() => {
     if (chatList.some((chat) => chat.unreaded) && notifications && chatId) {
       const notify = notifications?.find(
-        (n) => 'senderData' in n.body && n.body.senderData.chatId === chatId
+        (n) => 'senderData' in n.body && n.body.senderData?.chatId === chatId
       );
       if (notify) {
         const body = notify?.body as ReceiveNotificationIncomingBody;
-        if (messages.every((message) => message.idMessage !== body.idMessage)) {
+        const { messageData, idMessage } = body;
+        if (
+          messages.every(
+            (message) =>
+              message.idMessage !== body.idMessage &&
+              messageData?.textMessageData !== undefined &&
+              idMessage !== undefined
+          )
+        ) {
           setMessages((prevState) => [
             ...prevState,
             getReceivedMessage(
               chatId,
-              body.messageData.textMessageData.textMessage,
-              body.idMessage,
-              body.timestamp
+              messageData?.textMessageData.textMessage ?? '',
+              idMessage ?? '',
+              body.timestamp ?? 0
             ),
           ]);
         } else {
@@ -104,7 +112,7 @@ export const NewChat = React.memo(() => {
             dispatch(deleteNotify(notify.receiptId));
             deleteNotification(notify.receiptId);
             const newChats = chatList.map((chat) => {
-              if (chat.phone === body.senderData.chatId) {
+              if (chat.phone === body.senderData?.chatId) {
                 const newChat = { ...chat, lastMessage: '', unreaded: false };
                 return newChat;
               }

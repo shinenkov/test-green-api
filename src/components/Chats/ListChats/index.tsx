@@ -55,7 +55,7 @@ export const ListChats: React.FC<ListChatsProps> = ({ chats }) => {
 
   const handleChatSelect = (chatId: string) => {
     const lastNotify = notifications?.find(
-      (n) => 'senderData' in n.body && n.body.senderData.chatId === chatId
+      (n) => 'senderData' in n.body && n.body.senderData?.chatId === chatId
     );
     if (lastNotify) {
       dispatch(deleteNotify(lastNotify.receiptId));
@@ -87,7 +87,7 @@ export const ListChats: React.FC<ListChatsProps> = ({ chats }) => {
           chats.some(
             (c) =>
               'senderData' in notification.body &&
-              notification.body.senderData.chatId === c.phone
+              notification.body.senderData?.chatId === c.phone
           )
         ) {
           return notification;
@@ -116,7 +116,7 @@ export const ListChats: React.FC<ListChatsProps> = ({ chats }) => {
     const body = notify.body as ReceiveNotificationIncomingBody;
     return chats.map((chat) => {
       if (
-        chat.phone === body.senderData.chatId &&
+        chat.phone === body.senderData?.chatId &&
         body.messageData &&
         body.senderData
       ) {

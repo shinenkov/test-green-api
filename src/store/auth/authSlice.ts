@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { RootState } from '../appStore';
 import { SettingsResponse } from './types';
 import { getUrl } from '../../api/baseApi';
+import { setSettings, defaultSettingsForThisApp } from './utils';
 
 type AuthState = {
   isAuthenticated: boolean;
@@ -35,6 +36,9 @@ export const login = createAsyncThunk(
         getUrl(idInstance, apiTokenInstance, 'getSettings')
       );
       const data: SettingsResponse = await response.json();
+      if (data.wid) {
+        setSettings(idInstance, apiTokenInstance, defaultSettingsForThisApp);
+      }
       return { idInstance, apiTokenInstance, wid: data.wid };
     } catch (error) {
       console.error(error);

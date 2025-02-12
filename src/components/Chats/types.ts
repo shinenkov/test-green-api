@@ -22,22 +22,22 @@ export type TextMessageDataType = {
 };
 
 export type ReceiveNotificationIncomingBody = {
-  typeWebhook: string;
-  instanceData: InstanceDataType;
-  timestamp: number;
-  idMessage: string;
-  senderData: SenderDataType;
-  messageData: MessageDataType;
+  typeWebhook?: string;
+  instanceData?: InstanceDataType;
+  timestamp?: number;
+  idMessage?: string;
+  senderData?: SenderDataType;
+  messageData?: MessageDataType;
 };
 
 export type ReceiveNotificationOutgoingBody = {
-  chatId: string;
-  idMessage: string;
-  instanceData: InstanceDataType;
-  sendByApi: boolean;
-  status: string;
-  timestamp: number;
-  typeWebhook: string;
+  chatId?: string;
+  idMessage?: string;
+  instanceData?: InstanceDataType;
+  sendByApi?: boolean;
+  status?: string;
+  timestamp?: number;
+  typeWebhook?: string;
 };
 
 export type ReceiveNotificationResponse = {
